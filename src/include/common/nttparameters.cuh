@@ -162,5 +162,36 @@ namespace gpuntt
         gpu_root_of_unity_table_generator(std::vector<T> table);
     };
 
+
+    template <typename T> class NTTParametersCT
+    {
+      public:
+        int logn;
+
+        Modulus<T> modulus;
+
+        T omega;
+
+        Ninverse<T> n_inv;
+
+        T root_of_unity;
+        T inverse_root_of_unity;
+
+        T root_of_unity_size;
+
+        T* forward_root_of_unity_table;
+        T* inverse_root_of_unity_table;
+
+        NTTParametersCT(int LOGN, NTTFactors<T> ntt_factors, T* forward_table, T* inverse_table);
+
+        NTTParametersCT(int LOGN, NTTFactors<T> ntt_factors);
+
+        NTTParametersCT(); // = delete;   
+        
+        ~NTTParametersCT();
+    };
+
+    template <typename T>
+    __host__ Root<T>* small_forward_table_generator(T root, const Modulus<T>& modulus);
 } // namespace gpuntt
 #endif // NTT_PARAMETERS_H

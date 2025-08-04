@@ -3,6 +3,20 @@
 // --------------------- //
 
 #include "nttparameters.cuh"
+#include <iostream>
+
+#define BLOCKSZ 512
+#define LOG2BLOCKSZ 9
+#define LOG2NUMSPERBLOCK 10
+// #define BLOCKSZ 32
+// #define LOG2BLOCKSZ 5
+// #define LG2NUMSPERBLOCK 6
+// #define BLOCKSZ 4
+// #define LOG2BLOCKSZ 2
+// #define LG2NUMSPERBLOCK 3
+// #define BLOCKSZ 2
+// #define LOG2BLOCKSZ 1
+// #define LG2NUMSPERBLOCK 2
 
 namespace gpuntt
 {
@@ -492,9 +506,73 @@ namespace gpuntt
         return new_table;
     }
 
+
+    template <typename T>
+    __host__ Root<T>* small_forward_table_generator(T root, const Modulus<T>& modulus) {
+        const int size = BLOCKSZ;
+        std::vector<T> cputable(size);
+        T curr = 1;
+        for (int i = 0; i < size; ++i) {
+            cputable[bitreverse(i, LOG2BLOCKSZ)] = curr;
+            curr = OPERATOR<T>::mult(curr, root, modulus);
+        }
+
+        Root<T>* gputable;
+
+        cudaMalloc(&gputable, size * sizeof(Root<T>));
+        cudaMemcpy(gputable, cputable.data(), size * sizeof(Root<T>), cudaMemcpyHostToDevice);
+
+        return gputable;
+    }
+
+    template<typename T>
+    NTTParametersCT<T>::NTTParametersCT(int LOGN, NTTFactors<T> ntt_factors, T* forward_table, T* inverse_table) {
+        logn = LOGN;
+        int n = 1 << logn;
+
+        modulus = ntt_factors.modulus;
+
+        n_inv = OPERATOR<T>::modinv(n, modulus);
+
+        root_of_unity = ntt_factors.omega;
+        inverse_root_of_unity = OPERATOR<T>::modinv(root_of_unity, modulus);
+
+        forward_root_of_unity_table = forward_table;
+        inverse_root_of_unity_table = inverse_table;
+    }
+
+    template<typename T>
+    NTTParametersCT<T>::NTTParametersCT(int LOGN, NTTFactors<T> ntt_factors) {
+        logn = LOGN;
+        int n = 1 << logn;
+
+        modulus = ntt_factors.modulus;
+
+        n_inv = OPERATOR<T>::modinv(n, modulus);
+
+        root_of_unity = ntt_factors.omega;
+        inverse_root_of_unity = OPERATOR<T>::modinv(root_of_unity, modulus);
+        T small_forward_root = OPERATOR<T>::exp(root_of_unity, 1 << (LOGN - (LOG2BLOCKSZ + 1)), modulus);
+        T small_inverse_root = OPERATOR<T>::exp(inverse_root_of_unity, 1 << (LOGN - (LOG2BLOCKSZ + 1)), modulus);
+
+        forward_root_of_unity_table = small_forward_table_generator(small_forward_root, modulus);
+        inverse_root_of_unity_table = small_forward_table_generator(small_inverse_root, modulus);
+    }
+
+    template<typename T>
+    NTTParametersCT<T>::NTTParametersCT() {}
+
+    template<typename T>
+    NTTParametersCT<T>::~NTTParametersCT() {
+        cudaFree(forward_root_of_unity_table);
+        cudaFree(inverse_root_of_unity_table);
+    }
+
     template class NTTParameters<Data32>;
     template class NTTParameters<Data64>;
     template class NTTParameters4Step<Data32>;
     template class NTTParameters4Step<Data64>;
+    template class NTTParametersCT<Data64>;
+    template __host__ Root<Data64>* small_forward_table_generator<Data64>(Data64 root, const Modulus<Data64>& modulus);
 
 } // namespace gpuntt

@@ -7,6 +7,7 @@ set(EXECUTABLES
     gpu_4step_ntt_examples ntt_4step/test_4step_ntt.cu
     gpu_4step_intt_examples ntt_4step/test_4step_intt.cu
     cpu_4step_ntt_examples ntt_4step/test_cpu_4step_ntt.cu
+    gpu_ct_ntt_examples ntt_ct/test_ct_ntt.cu
 )
 
 function(add_example exe source)

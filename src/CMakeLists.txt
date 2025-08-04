@@ -4,6 +4,7 @@ file(GLOB_RECURSE LIB_SOURCE_FILES
     lib/common/*.cu
     lib/ntt_4step/*.cu
     lib/ntt_merge/*.cu
+    lib/ntt_ct/*.cu
 )
 
 file(GLOB_RECURSE LIB_HEADER_FILES
@@ -12,6 +13,7 @@ file(GLOB_RECURSE LIB_HEADER_FILES
     include/common/*.cuh
     include/ntt_4step/*.cuh
     include/ntt_merge/*.cuh
+    include/ntt_ct/*.cuh
 )
 
 add_library(ntt STATIC ${LIB_SOURCE_FILES})
@@ -28,6 +30,7 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/common>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/ntt_4step>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/ntt_merge>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/ntt_ct>
     $<INSTALL_INTERFACE:include/GPUNTT-${PROJECT_VERSION}>
 )
 

@@ -31,6 +31,11 @@ template <typename T1> struct Modulus
     __host__ Modulus(T1 mod) : value(mod)
     {
         bit = bit_generator();
+        if (std::is_same<T1, Data32>::value) {
+            if (bit >= 31) { throw std::invalid_argument("mod too large"); }
+        } else {
+            if (bit >= 63) { throw std::invalid_argument("mod too large"); }
+        }
         mu = mu_generator();
     }
 
@@ -234,6 +239,22 @@ namespace modular_operation_gpu
 
                 return result;
             }
+            
+            // __device__ __forceinline__ uint128_t
+            // operator>>(const unsigned& shift)
+            // {
+            //     uint128_t result;
+
+            //     result.value.x = value.x >> shift;
+            //     if (shift > 64) {
+            //         result.value.x = (value.y >> (shift - 64)) | result.value.x;
+            //     } else {
+            //         result.value.x = (value.y << (64 - shift)) | result.value.x;
+            //     }
+            //     result.value.y = value.y >> shift;
+
+            //     return result;
+            // }
 
             __device__ __forceinline__ uint128_t operator-(uint128_t& other)
             {
