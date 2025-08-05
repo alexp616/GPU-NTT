@@ -20,6 +20,7 @@ FetchContent_MakeAvailable(thrust)
 set(EXECUTABLES
     benchmark_merge_ntt bench_merge_ntt.cu
     benchmark_4step_ntt bench_4step_ntt.cu
+    benchmark_ct_ntt bench_ct_ntt.cu
 )
 
 function(add_benchmark exe source)
