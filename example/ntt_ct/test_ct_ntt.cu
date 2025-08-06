@@ -53,7 +53,6 @@ int main(int argc, char* argv[])
 
     Root<Data64> curr_root = root;
     for (int currlgn = LOGN; currlgn >= 10; --currlgn) {
-        curr_root = OPERATOR<Data64>::mult(curr_root, curr_root, mod);
         
         NTTFactors<Data64> factors(mod, curr_root, 0);
         NTTParametersCT<Data64> params(currlgn, factors);
@@ -92,22 +91,13 @@ int main(int argc, char* argv[])
         for (int i = 0; i < len; ++i) {
             assert(arr[i] == i);
         }
-
+        curr_root = OPERATOR<Data64>::mult(curr_root, curr_root, mod);
+        
         free(arr);
         cudaFree(cu_arr);
     }
 
     std::cout << "All CT tests passed!" << std::endl;
-    // auto start = std::chrono::high_resolution_clock::now();
-    // const int trials = 50;
-    // for (int i = 0; i < trials; ++i) {
-    //     GPU_CT_NTT_Inplace(cu_arr, root, mod, cfg);
-    // }
-    // cudaDeviceSynchronize();
-    // auto end = std::chrono::high_resolution_clock::now();
-    // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    // std::cout << "Execution time: " << duration.count() / trials << " microseconds\n";
-
 
     return EXIT_SUCCESS;
 }
