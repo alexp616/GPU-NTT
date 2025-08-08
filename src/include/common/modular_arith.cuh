@@ -17,9 +17,9 @@ typedef unsigned Data32;
 typedef unsigned Root32;
 typedef unsigned Ninverse32;
 
-typedef unsigned long long Data64;
-typedef unsigned long long Root64;
-typedef unsigned long long Ninverse64;
+typedef unsigned long Data64;
+typedef unsigned long Root64;
+typedef unsigned long Ninverse64;
 
 template <typename T1> struct Modulus
 {
@@ -192,12 +192,6 @@ namespace modular_operation_gpu
                 value.y = 0;
             }
 
-            __device__ __forceinline__ uint128_t(const uint64_t& input)
-            {
-                value.x = input;
-                value.y = 0;
-            }
-
             __device__ __forceinline__ uint128_t(const Data64& input)
             {
                 value.x = input;
@@ -208,12 +202,6 @@ namespace modular_operation_gpu
             {
                 value.x = input.value.x;
                 value.y = input.value.y;
-            }
-
-            __device__ __forceinline__ void operator=(const uint64_t& input)
-            {
-                value.x = input;
-                value.y = 0;
             }
 
             __device__ __forceinline__ uint128_t
@@ -228,33 +216,33 @@ namespace modular_operation_gpu
                 return result;
             }
 
-            __device__ __forceinline__ uint128_t
-            operator>>(const unsigned& shift)
-            {
-                uint128_t result;
-
-                result.value.x = value.x >> shift;
-                result.value.x = (value.y << (64 - shift)) | result.value.x;
-                result.value.y = value.y >> shift;
-
-                return result;
-            }
-            
             // __device__ __forceinline__ uint128_t
             // operator>>(const unsigned& shift)
             // {
             //     uint128_t result;
 
             //     result.value.x = value.x >> shift;
-            //     if (shift > 64) {
-            //         result.value.x = (value.y >> (shift - 64)) | result.value.x;
-            //     } else {
-            //         result.value.x = (value.y << (64 - shift)) | result.value.x;
-            //     }
+            //     result.value.x = (value.y << (64 - shift)) | result.value.x;
             //     result.value.y = value.y >> shift;
 
             //     return result;
             // }
+            
+            __device__ __forceinline__ uint128_t
+            operator>>(const unsigned& shift)
+            {
+                uint128_t result;
+
+                result.value.x = value.x >> shift;
+                if (shift > 64) {
+                    result.value.x = (value.y >> (shift - 64)) | result.value.x;
+                } else {
+                    result.value.x = (value.y << (64 - shift)) | result.value.x;
+                }
+                result.value.y = value.y >> shift;
+
+                return result;
+            }
 
             __device__ __forceinline__ uint128_t operator-(uint128_t& other)
             {

@@ -92,10 +92,10 @@ namespace gpuntt {
             t_ -= 1;
         }
         
-        int power1 = blockIdx.x * bit_reverse(sharedidx1, LG2NUMSPERBLOCK);
-        int power2 = power1 + blockIdx.x;
-        T twiddle1 = power_mod(root, power1, mod);
-        T twiddle2 = power_mod(root, power2, mod);
+        T ria = power_mod(root, blockIdx.x, mod);
+        T twiddle1 = power_mod(ria, bit_reverse(sharedidx1, LG2NUMSPERBLOCK), mod);
+        T twiddle2 = OPERATOR_GPU<T>::mult(twiddle1, ria, mod);
+
         __syncthreads();
         shared_memory[sharedidx1] = OPERATOR_GPU<T>::mult(shared_memory[sharedidx1], twiddle1, mod);
         shared_memory[sharedidx2] = OPERATOR_GPU<T>::mult(shared_memory[sharedidx2], twiddle2, mod);
@@ -323,13 +323,14 @@ namespace gpuntt {
     }
 
     template <typename T>
-    __host__ void GPU_CT_NTT_Inplace(T* device_inout, Root<T> root,
-                                  Modulus<T> modulus, nttct_configuration<T> cfg) {
+    __host__ void GPU_CT_NTT_Inplace(T* device_inout, nttct_configuration<T> cfg) {
         int n = 1 << cfg.n_power;
         int lg2n = cfg.n_power;
         int block_stride, glob_stride;
         int griddim_x, griddim_y;
         int blockdim_x, blockdim_y;    
+        T root = cfg.root;
+        Modulus<T> modulus = cfg.mod;
 
         assert(cfg.n_power >= LG2NUMSPERBLOCK);
 
@@ -406,7 +407,6 @@ namespace gpuntt {
         }
     }
 
-    template __host__ void GPU_CT_NTT_Inplace(Data64* device_inout,  Root<Data64> root,
-                                  Modulus<Data64> modulus, nttct_configuration<Data64> cfg);
+    template __host__ void GPU_CT_NTT_Inplace(Data64* device_inout,  nttct_configuration<Data64> cfg);
 
 }

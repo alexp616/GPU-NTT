@@ -22,7 +22,7 @@ typedef unsigned location_t;
 #if MAX_LOG2_RINGSIZE <= 32
 typedef unsigned location_t;
 #else
-typedef unsigned long long location_t;
+typedef unsigned long location_t;
 #endif
 */
 

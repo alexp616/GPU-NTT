@@ -46,22 +46,22 @@ void GPU_CT_NTT_Forward_Benchmark(nvbench::state& state)
     cudaStreamCreate(&stream);
     state.set_cuda_stream(nvbench::make_cuda_stream_view(stream));
 
+    Modulus<BenchmarkDataType> mod_data(10000ULL);
     nttct_configuration<BenchmarkDataType> cfg_ntt = {
         .n_power = static_cast<int>(ring_size_logN),
         .ntt_type = FORWARD,
         .shared_memory = 3 * THREADSPERBLOCK * sizeof(BenchmarkDataType),
+        .root = 1234,
         .root_table = thrust::raw_pointer_cast(small_root_of_unity_table.data()),
+        .mod = mod_data,
         .stream = stream};
-
-    Modulus<BenchmarkDataType> mod_data(10000ULL);
 
     state.exec(
         [&](nvbench::launch& launch)
         {
             GPU_CT_NTT_Inplace(
                 thrust::raw_pointer_cast(input_data.data()),
-                1234, // random number
-                mod_data, cfg_ntt);
+                cfg_ntt);
         });
 
     cudaStreamSynchronize(stream);
@@ -70,7 +70,7 @@ void GPU_CT_NTT_Forward_Benchmark(nvbench::state& state)
 
 NVBENCH_BENCH(GPU_CT_NTT_Forward_Benchmark)
     .add_int64_axis("Ring Size LogN",
-                    {12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24})
+                    {12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28})
     .add_int64_axis("Batch Count", {1})
     .set_timeout(1);
 
@@ -105,23 +105,23 @@ void GPU_4STEP_NTT_Inverse_Benchmark(nvbench::state& state)
     cudaStreamCreate(&stream);
     state.set_cuda_stream(nvbench::make_cuda_stream_view(stream));
 
+    Modulus<BenchmarkDataType> mod_data(10000ULL);
     nttct_configuration<BenchmarkDataType> cfg_ntt = {
         .n_power = static_cast<int>(ring_size_logN),
         .ntt_type = INVERSE,
         .shared_memory = 3 * THREADSPERBLOCK * sizeof(BenchmarkDataType),
+        .root = 1234,
         .root_table = thrust::raw_pointer_cast(small_root_of_unity_table.data()),
+        .mod = mod_data,
         .scale_output = true,
         .stream = stream};
-
-    Modulus<BenchmarkDataType> mod_data(10000ULL);
 
     state.exec(
         [&](nvbench::launch& launch)
         {
             GPU_CT_NTT_Inplace(
                 thrust::raw_pointer_cast(input_data.data()),
-                1234,
-                mod_data, cfg_ntt);
+                cfg_ntt);
         });
 
     cudaStreamSynchronize(stream);
@@ -130,6 +130,6 @@ void GPU_4STEP_NTT_Inverse_Benchmark(nvbench::state& state)
 
 NVBENCH_BENCH(GPU_4STEP_NTT_Inverse_Benchmark)
     .add_int64_axis("Ring Size LogN",
-                    {12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24})
+                    {12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28})
     .add_int64_axis("Batch Count", {1})
     .set_timeout(1);

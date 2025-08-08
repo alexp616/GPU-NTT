@@ -22,7 +22,7 @@ typedef unsigned location_t;
 #if MAX_LOG2_RINGSIZE <= 32
 typedef unsigned location_t;
 #else
-typedef unsigned long long location_t;
+typedef unsigned long location_t;
 #endif
 */
 
@@ -33,14 +33,15 @@ namespace gpuntt
         int n_power;
         type ntt_type;
         int shared_memory;
+        Root<T> root;
         Root<T>* root_table;
+        Modulus<T> mod;
         bool scale_output;
         cudaStream_t stream;
     };
 
     template <typename T>
-    __host__ void GPU_CT_NTT_Inplace(T* device_inout, Root<T> root,
-                                  Modulus<T> modulus, nttct_configuration<T> cfg);
+    __host__ void GPU_CT_NTT_Inplace(T* device_inout, nttct_configuration<T> cfg);
 
 
 } // namespace gpuntt

@@ -69,7 +69,7 @@ void GPU_NTT_Forward_Benchmark(nvbench::state& state)
 
 NVBENCH_BENCH(GPU_NTT_Forward_Benchmark)
     .add_int64_axis("Ring Size LogN",
-                    {12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24})
+                    {12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28})
     .add_int64_axis("Batch Count", {1})
     .set_timeout(1);
 
@@ -133,7 +133,6 @@ void GPU_NTT_Inverse_Benchmark(nvbench::state& state)
 }
 
 NVBENCH_BENCH(GPU_NTT_Inverse_Benchmark)
-    .add_int64_axis("Ring Size LogN", {10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                                       20, 21, 22, 23, 24})
+    .add_int64_axis("Ring Size LogN", {12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28})
     .add_int64_axis("Batch Count", {1})
     .set_timeout(1);
